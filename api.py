@@ -12,15 +12,17 @@ r = redis.StrictRedis.from_url(REDIS_URL)
 @app.route('/<probe>')
 @jsonp
 @json
-def api(probe):
+def detail(probe):
     """ returns list of data we have for this probe """
 
-    # lookup data in redis
+    # todo: lookup data in redis
+    """
     try:
         data = loads(r.get(probe))
     except TypeError:  # typeerror?
         pass
         # todo: return 404 nicely here
+    """
 
     # fake data!
     data = {'Probe name': probe,
@@ -36,12 +38,19 @@ def api(probe):
     return data, 200
 
 
-@app.route('/spaceprobes')
+@app.route('/list')
 @jsonp
 @json
-def spaceprobes():
+def list():
     """ returns list of all space probes in db """
-    return {"probe_list": ['cat','mouse','cow','dog']}
+
+    # todo: get list of space probles from redis
+    probe_names = ['Cassini', 'Voyager 1', 'Voyager 2','MRO']
+
+    # include link into api in response
+    spaceprobes = {'spaceprobes': [p.replace(" ", "-") for p in probe_names]}
+
+    return spaceprobes, 200
 
 
 if __name__ == '__main__':
