@@ -41,7 +41,7 @@ def detail(probe):
 @app.route('/')
 @jsonp
 @json
-def list():
+def index():
     """ returns list of all space probes in db """
 
     # todo: get list of space probles from redis
