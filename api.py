@@ -38,7 +38,7 @@ def detail(probe):
     return data, 200
 
 
-@app.route('/list')
+@app.route('/')
 @jsonp
 @json
 def list():
