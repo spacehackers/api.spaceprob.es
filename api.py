@@ -7,7 +7,7 @@ from json import loads
 app = Flask(__name__)
 
 REDIS_URL = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
-r = redis.StrictRedis.from_url(REDIS_URL)
+r_server = redis.StrictRedis.from_url(REDIS_URL)
 
 @app.route('/<probe>')
 @jsonp
@@ -16,24 +16,10 @@ def detail(probe):
     """ returns list of data we have for this probe """
 
     # todo: lookup data in redis
-    """
     try:
-        data = loads(r.get(probe))
-    except TypeError:  # typeerror?
-        pass
-        # todo: return 404 nicely here
-    """
-
-    # fake data!
-    data = {'Probe name': probe,
-            'Launch Date': 'Thu Mar 20 17:16:17 PDT 2014',
-            'distance_from_earth': 20000,
-            'last downlink station': 'Goldstone',
-            'last downlink time': 'Thu Mar 20 17:16:17 PDT 2014',
-            'Mission Phase':'cruise',
-            'orbit_no':6,
-            'orbit_body':'Saturn'
-            }
+        data = loads(r_server.get(probe))
+    except:  # type error?
+        return {'Error': 'spacecraft not found'}, 404
 
     return data, 200
 
@@ -45,10 +31,10 @@ def index():
     """ returns list of all space probes in db """
 
     # todo: get list of space probles from redis
-    probe_names = ['Cassini', 'Voyager 1', 'Voyager 2','MRO']
+    probe_names = r_server.keys()
 
     # include link into api in response
-    spaceprobes = {'spaceprobes': [p.replace(" ", "-") for p in probe_names]}
+    spaceprobes = {'spaceprobes': [p for p in probe_names]}
 
     return spaceprobes, 200
 
