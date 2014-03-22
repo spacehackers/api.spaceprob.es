@@ -1,12 +1,13 @@
+from __future__ import print_function
 import os
 import pickle
 import redis
-from __future__ import print_function
 import wolframalpha  # https://pypi.python.org/pypi/wolframalpha
 
 REDIS_URL = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
-r_server = redis.StrictRedis.from_url(REDIS_URL)
+APP_ID = os.getenv('WOLFRAMALPHA_APP_ID')
 
+r_server = redis.StrictRedis.from_url(REDIS_URL)
 client = wolframalpha.Client(APP_ID)
 
 # get list of space probes
