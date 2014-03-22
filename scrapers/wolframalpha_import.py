@@ -1,11 +1,12 @@
 from __future__ import print_function
 import os
-import pickle
+import json
 import redis
-import wolframalpha  # https://pypi.python.org/pypi/wolframalpha
+import wolframalpha
+
 
 REDIS_URL = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
-APP_ID = os.getenv('WOLFRAMALPHA_APP_ID')
+APP_ID = os.getenv('WOLFRAMALPHA_APP_ID', '')
 
 r_server = redis.StrictRedis.from_url(REDIS_URL)
 client = wolframalpha.Client(APP_ID)
@@ -23,7 +24,7 @@ probe_data = {}
 for probe in probe_names:
 
     probe_data[probe] = {}
-    lookup_str = probe + 'spacecraft'
+    lookup_str = probe + ' spacecraft'
     print('looking up: ' + lookup_str)
     res = client.query(lookup_str)
 
@@ -45,4 +46,4 @@ for probe in probe_names:
 # now put them in redis
 for name, data in probe_data.items():
     key_name = '_'.join(name.split(' '))  # replace spaces with underscores
-    r_server.set(key_name, pickle.dumps(data))
+    r_server.set(key_name, json.dumps(data))
