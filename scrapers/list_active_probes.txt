@@ -1,4 +1,4 @@
-# manually pasted from https://en.wikipedia.org/wiki/List_of_Solar_System_probes
+# -- keep this line only 1 line-- this list is manually pasted from https://en.wikipedia.org/wiki/List_of_Solar_System_probes
 WIND
 SOHO
 ACE
@@ -16,12 +16,12 @@ Dawn
 Juno
 Cassini
 New Horizons
-67P/Churyumov-Gerasimenko
+Churyumov-Gerasimenko
 Voyager 1
 Voyager 2
 Spitzer Space Telescope
 Kepler
-Herschel Space Observatory
+Herschel
 Planck
 IKAROS
 Gaia
