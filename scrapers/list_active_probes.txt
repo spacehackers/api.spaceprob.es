@@ -1,0 +1,27 @@
+# manually pasted from https://en.wikipedia.org/wiki/List_of_Solar_System_probes
+WIND
+SOHO
+ACE
+STEREO A
+STEREO B
+MESSENGER
+Venus Express
+Akatsuki (PLANET-C)
+2001 Mars Odyssey
+Mars Express
+Mars Reconnaissance Orbiter
+Mars Orbiter Mission
+MAVEN
+Dawn
+Juno
+Cassini
+New Horizons
+67P/Churyumov-Gerasimenko
+Voyager 1
+Voyager 2
+Spitzer Space Telescope
+Kepler
+Herschel Space Observatory
+Planck
+IKAROS
+Gaia
