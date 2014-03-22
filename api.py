@@ -13,7 +13,9 @@ r = redis.StrictRedis.from_url(REDIS_URL)
 @jsonp
 @json
 def detail(probe):
-    """ returns list of data we have for this probe """
+    """ returns list of data we have for this probe 
+        url = /<probe_name>
+        """
 
     # todo: lookup data in redis
     """
@@ -42,7 +44,9 @@ def detail(probe):
 @jsonp
 @json
 def index():
-    """ returns list of all space probes in db """
+    """ returns list of all space probes in db
+        url = /
+        """
 
     # todo: get list of space probles from redis
     probe_names = ['Cassini', 'Voyager 1', 'Voyager 2','MRO']
