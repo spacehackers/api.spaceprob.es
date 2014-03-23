@@ -1,4 +1,4 @@
-# -- keep this line only 1 line-- this list is manually pasted from https://en.wikipedia.org/wiki/List_of_Solar_System_probes
+# -- keep this line only 1 line-- this list is manually cut from https://en.wikipedia.org/wiki/List_of_Solar_System_probes
 WIND
 SOHO
 ACE
