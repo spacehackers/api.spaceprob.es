@@ -20,10 +20,10 @@ def get_detail(probe):
         return {'Error': 'spacecraft not found'}, 404  # this doesn't work i dunno
 
 
-@app.route('/api/guide/')
+@app.route('/probes/guide/')
 def guide():
     """ html api guide data viewer thingy
-        at </api/guide/>
+        at </probes/guide/>
     """
     probe_details = {}
     for probe in r_server.keys():
@@ -32,7 +32,7 @@ def guide():
     return render_template('guide.html', **kwargs)
 
 
-@app.route('/api/<probe>/')
+@app.route('/probes/<probe>/')
 @jsonp
 @json
 def detail(probe):
@@ -44,7 +44,7 @@ def detail(probe):
     return get_detail(probe), 200
 
 
-@app.route('/api/<probe>/<field>/')
+@app.route('/probes/<probe>/<field>/')
 @jsonp
 @json
 def single_field(probe, field):
@@ -57,7 +57,7 @@ def single_field(probe, field):
     return {field: field_value[field]}, 200
 
 
-@app.route('/api/')
+@app.route('/probes/')
 @jsonp
 @json
 def index():
@@ -69,7 +69,7 @@ def index():
 
 @app.route('/')
 def hello():
-    return redirect("/api/guide/", code=302)
+    return redirect("/probes/guide/", code=302)
 
 
 if __name__ == '__main__':
