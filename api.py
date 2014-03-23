@@ -8,6 +8,7 @@ app = Flask(__name__)
 REDIS_URL = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
 r_server = redis.StrictRedis.from_url(REDIS_URL)
 
+
 def get_detail(probe):
     """ returns list of data we have for this probe
         url = /<probe_name>
@@ -42,6 +43,7 @@ def detail(probe):
     """
     return get_detail(probe), 200
 
+
 @app.route('/<probe>/<field>/')
 @jsonp
 @json
@@ -53,6 +55,7 @@ def single_field(probe, field):
     """
     field_value = get_detail(probe)
     return {field: field_value[field]}, 200
+
 
 @app.route('/')
 @jsonp
