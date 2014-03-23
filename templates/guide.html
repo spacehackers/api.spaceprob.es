@@ -1,12 +1,19 @@
 {% extends "layout.html" %}
 {% block body %}
 
+<p><a href = "/">List of All Probes</a></p>
+
+<h3>Data:</h3>
 <ul>
     {% for probe_name, detail in probe_details.iteritems() %}
-    <li><h3><a href = "/{{ probe_name }}">{{ probe_name }}</a></h3>
+    <li>
+        <h3>
+        <a name = "{{ probe_name }}" href = "/{{ probe_name }}">{{ probe_name }}</a></h3>
         <ul>
             {% for param, value in detail.iteritems() %}
-                <li><a href = "/{{ probe_name }}/{{ param }}">{{ param }}</a>: {{ value }}</li>
+                <li>
+                    <a href = "/{{ probe_name }}/{{ param }}">{{ param }}</a>: {{ value }}
+                </li>
             {% endfor %}
         </ul>
     {% endfor %}
