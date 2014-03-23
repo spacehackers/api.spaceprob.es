@@ -13,8 +13,8 @@ def get_detail(probe):
         url = /<probe_name>
     """
     try:
-        data = loads(r_server.get(probe))
-        return data
+        detail = loads(r_server.get(probe))
+        return detail
     except:  # type error?
         return {'Error': 'spacecraft not found'}, 404
 
@@ -38,8 +38,8 @@ def single_field(probe, field):
         ie
         </Cassini/mass>
     """
-    data = get_detail(probe)
-    return {field: data[field]}, 200
+    field_value = get_detail(probe)
+    return {field: field_value[field]}, 200
 
 @app.route('/')
 @jsonp
