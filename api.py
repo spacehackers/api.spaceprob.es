@@ -1,6 +1,6 @@
 import os
 import redis
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect
 from util import json, jsonp
 from json import loads
 
@@ -32,7 +32,7 @@ def guide():
     return render_template('guide.html', **kwargs)
 
 
-@app.route('/<probe>/')
+@app.route('/api/<probe>/')
 @jsonp
 @json
 def detail(probe):
@@ -44,7 +44,7 @@ def detail(probe):
     return get_detail(probe), 200
 
 
-@app.route('/<probe>/<field>/')
+@app.route('/api/<probe>/<field>/')
 @jsonp
 @json
 def single_field(probe, field):
@@ -57,7 +57,7 @@ def single_field(probe, field):
     return {field: field_value[field]}, 200
 
 
-@app.route('/')
+@app.route('/api/')
 @jsonp
 @json
 def index():
@@ -66,6 +66,10 @@ def index():
     """
     probe_names = r_server.keys()
     return {'spaceprobes': [p for p in probe_names]}, 200
+
+@app.route('/')
+def hello():
+    return redirect("/api/", code=302)
 
 
 if __name__ == '__main__':
