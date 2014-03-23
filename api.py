@@ -21,14 +21,12 @@ def get_detail(probe):
 
 @app.route('/api/guide/')
 def guide():
-    """ html api guide
+    """ html api guide data viewer thingy
         at </api/guide/>
     """
-    probe_names = r_server.keys()
     probe_details = {}
-    for probe in probe_names:
+    for probe in r_server.keys():
         probe_details[probe] = get_detail(probe)
-
     kwargs = {'probe_details':probe_details}
     return render_template('guide.html', **kwargs)
 
