@@ -1,6 +1,6 @@
 import os
 import redis
-from flask import Flask
+from flask import Flask, render_template
 from util import json, jsonp
 from json import loads
 
@@ -15,8 +15,23 @@ def get_detail(probe):
     try:
         detail = loads(r_server.get(probe))
         return detail
-    except:  # type error?
-        return {'Error': 'spacecraft not found'}, 404
+    except TypeError:  # type error?
+        return {'Error': 'spacecraft not found'}, 404  # this doesn't work i dunno
+
+
+@app.route('/api/guide/')
+def guide():
+    """ html api guide
+        at </api/guide/>
+    """
+    probe_names = r_server.keys()
+    probe_details = {}
+    for probe in probe_names:
+        probe_details[probe] = get_detail(probe)
+
+    kwargs = {'probe_details':probe_details}
+    return render_template('guide.html', **kwargs)
+
 
 @app.route('/<probe>/')
 @jsonp
