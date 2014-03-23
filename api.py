@@ -69,7 +69,7 @@ def index():
 
 @app.route('/')
 def hello():
-    return redirect("/api/", code=302)
+    return redirect("/api/guide/", code=302)
 
 
 if __name__ == '__main__':
