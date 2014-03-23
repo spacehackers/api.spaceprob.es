@@ -5,7 +5,6 @@ from util import json, jsonp
 from json import loads
 
 app = Flask(__name__)
-
 REDIS_URL = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
 r_server = redis.StrictRedis.from_url(REDIS_URL)
 
@@ -40,7 +39,7 @@ def single_field(probe, field):
         </Cassini/mass>
     """
     data = get_detail(probe)
-    return {probe: data[field]}, 200
+    return {field: data[field]}, 200
 
 @app.route('/')
 @jsonp
