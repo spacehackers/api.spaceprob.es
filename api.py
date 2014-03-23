@@ -9,22 +9,38 @@ app = Flask(__name__)
 REDIS_URL = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
 r_server = redis.StrictRedis.from_url(REDIS_URL)
 
-@app.route('/<probe>')
-@jsonp
-@json
-def detail(probe):
-    """ returns list of data we have for this probe 
+def get_detail(probe):
+    """ returns list of data we have for this probe
         url = /<probe_name>
-        """
-
-    # todo: lookup data in redis
+    """
     try:
         data = loads(r_server.get(probe))
+        return data
     except:  # type error?
         return {'Error': 'spacecraft not found'}, 404
 
-    return data, 200
+@app.route('/<probe>/')
+@jsonp
+@json
+def detail(probe):
+    """ returns list of data we have for this probe
+        url = /<probe_name>
+        ie
+        </Cassini>
+    """
+    return get_detail(probe), 200
 
+@app.route('/<probe>/<field>/')
+@jsonp
+@json
+def single_field(probe, field):
+    """ returns data for single field
+        url = /<probe_name>/<field>
+        ie
+        </Cassini/mass>
+    """
+    data = get_detail(probe)
+    return {probe: data[field]}, 200
 
 @app.route('/')
 @jsonp
@@ -32,15 +48,9 @@ def detail(probe):
 def index():
     """ returns list of all space probes in db
         url = /
-        """
-
-    # todo: get list of space probles from redis
+    """
     probe_names = r_server.keys()
-
-    # include link into api in response
-    spaceprobes = {'spaceprobes': [p for p in probe_names]}
-
-    return spaceprobes, 200
+    return {'spaceprobes': [p for p in probe_names]}, 200
 
 
 if __name__ == '__main__':
