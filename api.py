@@ -3,6 +3,9 @@ import redis
 from flask import Flask, render_template, redirect
 from util import json, jsonp
 from json import loads
+import urllib2
+import xmltodict
+
 
 app = Flask(__name__)
 REDIS_URL = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
@@ -70,6 +73,16 @@ def index():
 @app.route('/')
 def hello():
     return redirect("/probes/guide/", code=302)
+
+@app.route('/dump/dsn.json')
+@jsonp
+@json
+def dsn():
+    """ this is just a straight grap of xml from dsn and dump into json """
+    xml=urllib2.urlopen('http://eyes.nasa.gov/dsn/data/dsn.xml')
+    data = xmltodict.parse(xml)
+    # json = json.dumps(data)
+    return data, 200
 
 
 if __name__ == '__main__':
