@@ -1,11 +1,12 @@
+from __future__ import print_function
 import os
-import redis
-from flask import Flask, render_template, redirect
-from util import json, jsonp
-from json import loads
 import urllib2
+import redis
 import xmltodict
-
+from xml.dom.minidom import parse
+from flask import Flask, render_template, redirect
+from json import loads
+from util import json, jsonp
 
 app = Flask(__name__)
 REDIS_URL = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
@@ -78,11 +79,27 @@ def hello():
 @jsonp
 @json
 def dsn():
-    """ this is just a straight grap of xml from dsn and dump into json """
-    xml=urllib2.urlopen('http://eyes.nasa.gov/dsn/data/dsn.xml')
-    data = xmltodict.parse(xml)
-    # json = json.dumps(data)
-    return data, 200
+    response = urllib2.urlopen('http://eyes.nasa.gov/dsn/data/dsn.xml')
+    dom=parse(response)
+
+    dsn_data = {}
+    for node in dom.childNodes[0].childNodes:
+
+        if not  hasattr(node, 'tagName'):  # useless nodes
+            continue  # dsn feed is strange: dishes should appear inside station nodes but they don't, so have to parse node by node
+
+        if node.tagName == 'station':
+            xmltodict.parse(node.toxml())
+            station = node.getAttribute('friendlyName')
+            dsn_data.setdefault(station, {})
+            dsn_data[station]['friendlyName'] = node.getAttribute('friendlyName')
+            dsn_data[station]['timeUTC'] = node.getAttribute('timeUTC')
+            dsn_data[station]['timeZoneOffset'] = node.getAttribute('timeZoneOffset')
+
+        if node.tagName == 'dish':
+            dsn_data[station].setdefault('readings', []).append(xmltodict.parse(node.toxml()))
+
+    return dsn_data, 200
 
 
 if __name__ == '__main__':
