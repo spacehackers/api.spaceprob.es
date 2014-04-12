@@ -75,7 +75,8 @@ def index():
 def hello():
     return redirect("/probes/guide/", code=302)
 
-@app.route('/dump/dsn.json')
+@app.route('/dsn.json')
+@app.route('/dump/dsn.json')  # back compat
 @jsonp
 @json
 def dsn():
@@ -86,8 +87,11 @@ def dsn():
     for node in dom.childNodes[0].childNodes:
 
         if not  hasattr(node, 'tagName'):  # useless nodes
-            continue  # dsn feed is strange: dishes should appear inside station nodes but they don't, so have to parse node by node
+            continue
 
+        # dsn feed is strange: dishes should appear inside station nodes but don't
+        # so have to parse node by node THEN convert node to dict, converting
+        # entire xml doc to dict loses station attribute..
         if node.tagName == 'station':
             xmltodict.parse(node.toxml())
             station = node.getAttribute('friendlyName')
@@ -97,9 +101,11 @@ def dsn():
             dsn_data[station]['timeZoneOffset'] = node.getAttribute('timeZoneOffset')
 
         if node.tagName == 'dish':
-            dsn_data[station].setdefault('readings', []).append(xmltodict.parse(node.toxml()))
+            # dsn_data[station].setdefault('dishes', []).append(xmltodict.parse(node.toxml()))
+            dish_name = node.getAttribute('name')
+            dsn_data[station].setdefault(dish_name, []).append(xmltodict.parse(node.toxml())['dish'])
 
-    return dsn_data, 200
+    return {'dsn': dsn_data}, 200
 
 
 if __name__ == '__main__':
