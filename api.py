@@ -80,6 +80,7 @@ def hello():
 @jsonp
 @json
 def dsn():
+    """ a json view of the dsn xml feed """
     response = urllib2.urlopen('http://eyes.nasa.gov/dsn/data/dsn.xml')
     dom=parse(response)
 
@@ -90,8 +91,8 @@ def dsn():
             continue
 
         # dsn feed is strange: dishes should appear inside station nodes but don't
-        # so have to parse node by node THEN convert node to dict, converting
-        # entire xml doc to dict loses station attribute..
+        # so converting entire xml doc to dict loses the station/spacecraft relation
+        # so have to parse node by node to grab station THEN convert dish node to dict
         if node.tagName == 'station':
             xmltodict.parse(node.toxml())
             station = node.getAttribute('friendlyName')
