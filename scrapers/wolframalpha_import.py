@@ -28,9 +28,9 @@ for probe in probe_names:
     print('looking up: ' + lookup_str)
     res = client.query(lookup_str)
 
-
     for pod in res.pods[1:]:  # the first one is funky version of spacecraft name
         if not pod.text:
+            print('no wolphramalph text found for ' + lookup_str)
             continue
 
         data_chunk = pod.text
@@ -43,7 +43,5 @@ for probe in probe_names:
             if value:
                 probe_data[probe][attr] = value
 
-# now put them in redis
-for name, data in probe_data.items():
-    key_name = '_'.join(name.split(' '))  # replace spaces with underscores
-    r_server.set(key_name, json.dumps(data))
+r_server.set('wolframalpha', json.dumps(probe_data))
+

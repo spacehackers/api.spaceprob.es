@@ -18,7 +18,8 @@ def get_detail(probe):
         url = /<probe_name>
     """
     try:
-        detail = loads(r_server.get(probe))
+        wolframalpha = loads(r_server.get('wolframalpha'))
+        detail = wolframalpha[probe]
         return detail
     except TypeError:  # type error?
         return {'Error': 'spacecraft not found'}, 404  # this doesn't work i dunno
@@ -29,10 +30,8 @@ def guide():
     """ html api guide data viewer thingy
         at </probes/guide/>
     """
-    probe_details = {}
-    for probe in r_server.keys():
-        probe_details[probe] = get_detail(probe)
-    kwargs = {'probe_details':probe_details}
+    wolframalpha = loads(r_server.get('wolframalpha'))
+    kwargs = {'probe_details':wolframalpha}
     return render_template('guide.html', **kwargs)
 
 
