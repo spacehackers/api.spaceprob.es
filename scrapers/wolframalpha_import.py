@@ -12,7 +12,7 @@ r_server = redis.StrictRedis.from_url(REDIS_URL)
 client = wolframalpha.Client(APP_ID)
 
 # get list of space probes
-fname = 'list_active_probes.txt'
+fname = 'scrapers/list_active_probes.txt'
 probe_names = []
 with open(fname) as f:
     content = f.readlines()
