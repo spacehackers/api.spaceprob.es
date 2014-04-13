@@ -102,9 +102,7 @@ def dsn():
             dsn_data[station]['timeZoneOffset'] = node.getAttribute('timeZoneOffset')
 
         if node.tagName == 'dish':
-            # dsn_data[station].setdefault('dishes', []).append(xmltodict.parse(node.toxml()))
-            dish_name = node.getAttribute('name')
-            dsn_data[station].setdefault(dish_name, []).append(xmltodict.parse(node.toxml())['dish'])
+            dsn_data[station].setdefault('dishes', []).append(xmltodict.parse(node.toxml())['dish'])
 
     return {'dsn': dsn_data}, 200
 
