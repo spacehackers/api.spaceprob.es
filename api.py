@@ -67,7 +67,7 @@ def index():
     """ returns list of all space probes in db
         url = /
     """
-    probe_names = r_server.keys()
+    probe_names = [k for k in loads(r_server.get('wolframalpha'))]
     return {'spaceprobes': [p for p in probe_names]}, 200
 
 @app.route('/')
