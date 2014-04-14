@@ -7,7 +7,7 @@ import wolframalpha
 REDIS_URL = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
 APP_ID = os.getenv('WOLFRAMALPHA_APP_ID', '')
 
-print(APP_ID)
+print('APP_ID ' + APP_ID)
 
 r_server = redis.StrictRedis.from_url(REDIS_URL)
 client = wolframalpha.Client(APP_ID)
