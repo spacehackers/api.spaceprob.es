@@ -9,4 +9,6 @@ redis==2.9.1
 wsgiref==0.1.2
 xmltodict==0.8.7
 wolframalpha==1.0.2
+requests==2.2.1
+six==1.6.1
 
