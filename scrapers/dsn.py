@@ -15,6 +15,7 @@ data = json.loads(requests.get(url).text)['dsn']
 this_dsn = data
 last_dsn = r_server.get('last_dsn')
 if this_dsn == data:
+    print('dns feed has not changed')
     sys.exit()  # nothing to do
 if this_dsn != data:
     r_server.set('last_dsn', last_dsn)
