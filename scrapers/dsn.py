@@ -1,5 +1,6 @@
 from __future__ import print_function
 import os
+import sys
 import json
 import requests
 import redis
@@ -10,12 +11,14 @@ r_server = redis.StrictRedis.from_url(REDIS_URL)
 url = 'http://murmuring-anchorage-8062.herokuapp.com/dsn.json'
 data = json.loads(requests.get(url).text)['dsn']
 
-# keep track of how dsn feed changes for a while, is heroku's 10 minute scheduler enough?
+# log when we updated the database
 this_dsn = data
 last_dsn = r_server.get('last_dsn')
+if this_dsn == data:
+    sys.exit()  # nothing to do
 if this_dsn != data:
-    print("dsn has changed" )
     r_server.set('last_dsn', last_dsn)
+    print("dsn has changed, database updated")
 
 dsn_data = {}
 for station in data:
@@ -63,6 +66,6 @@ for station in data:
                 dsn_data[spacecraft]['last_upSignal_date'] = last_contact
 
             r_server.set(spacecraft, dsn_data[spacecraft])
-
+            print('dsn database updated')
 
 
