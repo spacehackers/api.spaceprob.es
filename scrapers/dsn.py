@@ -19,7 +19,7 @@ if this_dsn == data:
     sys.exit()  # nothing to do
 if this_dsn != data:
     r_server.set('last_dsn', last_dsn)
-    print("dsn has changed, database updated")
+    print("dsn has changed")
 
 dsn_data = {}
 for station in data:
@@ -50,7 +50,6 @@ for station in data:
                 dsn_data[spacecraft]['last_downSignal_station'] = station
                 dsn_data[spacecraft]['last_downSignal_dish'] = dish_name
                 dsn_data[spacecraft]['last_downSignal_date'] = last_contact
-
 
             for d in upSignal:
                 if not d['@spacecraft'] or not d['@frequency']: continue  # sometimes there is no uplink/downlink
