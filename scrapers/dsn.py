@@ -16,7 +16,7 @@ r_server = redis.StrictRedis.from_url(REDIS_URL)
 # fetches from our mirror of the dsn/eyes feed
 url = 'http://murmuring-anchorage-8062.herokuapp.com/dsn.json'
 
-def dsn_raw():
+def get_dsn_raw():
     """ a json view of the dsn xml feed """
     response = urllib2.urlopen('http://eyes.nasa.gov/dsn/data/dsn.xml')
     dom=parse(response)
@@ -44,6 +44,7 @@ def dsn_raw():
     r_server.set('dsn_raw', dumps(dsn_data))
 
     return dsn_data
+
 
 def dsn_convert():
     """ read our json mirror of dsn raw feed and remix+save
@@ -104,6 +105,6 @@ def dsn_convert():
 
 
 if __name__ == '__main__':
-    dsn_raw()  # update the json mirror
+    get_dsn_raw()  # update the json mirror
     dsn_convert()  # update our 'by spacecraft' schema
 

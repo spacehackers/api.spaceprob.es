@@ -4,7 +4,7 @@ import redis
 from flask import Flask, render_template, redirect
 from json import loads, dumps
 from util import json, jsonp
-from scrapers.dsn import dsn_raw
+from scrapers.dsn import get_dsn_raw
 
 app = Flask(__name__)
 REDIS_URL = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
@@ -19,7 +19,7 @@ def hello():
 @json
 def dsn_mirror():
     """ a json view of the dsn xml feed """
-    dsn = dsn_raw()
+    dsn = loads(r_server.get('dsn_raw'))
     return {'dsn': dsn }, 200
 
 @app.route('/dsn/probes.json')
