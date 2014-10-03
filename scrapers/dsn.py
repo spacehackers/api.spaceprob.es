@@ -94,7 +94,7 @@ def dsn_convert():
 
                 msg.append(probe)
 
-    print("updated: " + ", ".join(list(set(msg))))
+    print("updated: " + ", ".join(sorted(list(set(msg)))))
 
 # this is more like a util for the console
 def get_current_probes():
