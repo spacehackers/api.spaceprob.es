@@ -4,11 +4,11 @@ import sys
 import requests
 import redis
 import urllib2
-from time import sleep
+from datetime import datetime
+from time import sleep, mktime
 from json import loads, dumps
 from xml.dom.minidom import parse
 import xmltodict
-
 
 REDIS_URL = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
 r_server = redis.StrictRedis.from_url(REDIS_URL)
@@ -19,7 +19,9 @@ url = 'http://murmuring-anchorage-8062.herokuapp.com/dsn/mirror.json'
 def get_dsn_raw():
     """ gets dsn xml feed, converts to json, saves json to redis, returns json """
 
-    response = urllib2.urlopen('http://eyes.nasa.gov/dsn/data/dsn.xml')
+    # pass the url a param 'r' = timestamp to avoid hitting their cloudfront cache
+    timestamp = str(int(mktime(datetime.now().timetuple())))
+    response = urllib2.urlopen('http://eyes.nasa.gov/dsn/data/dsn.xml?r=' + timestamp)
     dom=parse(response)
 
     dsn_data = {}
