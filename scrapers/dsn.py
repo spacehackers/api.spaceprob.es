@@ -14,10 +14,11 @@ REDIS_URL = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
 r_server = redis.StrictRedis.from_url(REDIS_URL)
 
 # fetches from our mirror of the dsn/eyes feed
-url = 'http://murmuring-anchorage-8062.herokuapp.com/dsn.json'
+url = 'http://murmuring-anchorage-8062.herokuapp.com/dsn/mirror.json'
 
 def get_dsn_raw():
     """ a json view of the dsn xml feed """
+
     response = urllib2.urlopen('http://eyes.nasa.gov/dsn/data/dsn.xml')
     dom=parse(response)
 
@@ -52,6 +53,7 @@ def dsn_convert():
 
     # fetch+ooad dsn from our json mirror
     try:
+        print("trying %s" % url)
         req = requests.get(url)
     except requests.exceptions.RequestException as e:    # This is the correct syntax
         print(e)
@@ -63,10 +65,13 @@ def dsn_convert():
         except ValueError:
             print("could not load dsn data from %s" % url)
             sys.exit(1)
-
+    else:
+        print("status code not ok")
+        print(str(req.status_code))
 
     dsn_by_probe = loads(r_server.get('dsn_by_probe'))
 
+    msg = []
     for station in dsn_raw:
         for dish_attr in dsn_raw[station]:
 
@@ -74,6 +79,7 @@ def dsn_convert():
             dish_list = dsn_raw[station]['dishes']
 
             for dish in dish_list:
+
                 dish_name, downSignal, upSignal, target = (dish['@name'], dish['downSignal'], dish['upSignal'], dish['target'])
                 last_contact, updated = (dish['@created'], dish['@updated'])
 
@@ -85,8 +91,8 @@ def dsn_convert():
                 if type(target).__name__ == 'dict':
                     target = [target]
 
+                for d in target:  # sometimes it talks to > 1 target at a time
 
-                for d in target:
                     probe = d['@name']
 
                     dsn_by_probe.setdefault(probe, {})
@@ -102,7 +108,9 @@ def dsn_convert():
 
                 r_server.set('dsn_by_probe', dumps(dsn_by_probe))
 
+                msg.append(probe)
 
+    print("updated: " + ", ".join(list(set(msg))))
 
 if __name__ == '__main__':
     get_dsn_raw()  # update the json mirror
