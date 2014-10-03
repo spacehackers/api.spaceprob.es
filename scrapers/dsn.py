@@ -17,7 +17,7 @@ r_server = redis.StrictRedis.from_url(REDIS_URL)
 url = 'http://murmuring-anchorage-8062.herokuapp.com/dsn/mirror.json'
 
 def get_dsn_raw():
-    """ a json view of the dsn xml feed """
+    """ gets dsn xml feed, converts to json, saves json to redis, returns json """
 
     response = urllib2.urlopen('http://eyes.nasa.gov/dsn/data/dsn.xml')
     dom=parse(response)
@@ -51,22 +51,7 @@ def dsn_convert():
         into our 'by probe' schema """
 
     # fetch+ooad dsn from our json mirror
-    try:
-        print("trying %s" % url)
-        req = requests.get(url)
-    except requests.exceptions.RequestException as e:    # This is the correct syntax
-        print(e)
-        sys.exit(1)
-
-    if req.status_code == requests.codes.ok:
-        try:
-            dsn_raw = loads(req.text)['dsn']
-        except ValueError:
-            print("could not load dsn data from %s" % url)
-            sys.exit(1)
-    else:
-        print("status code not ok")
-        print(str(req.status_code))
+    dsn_raw = loads(r_server.get('dsn_raw'))
 
     dsn_by_probe = loads(r_server.get('dsn_by_probe'))
 
@@ -116,7 +101,7 @@ def get_current_probes():
     """ list of the current probe names and its length """
     url = 'http://murmuring-anchorage-8062.herokuapp.com/dsn/probes.json'
     for p,v in loads(requests.get(url).text).items():
-        return [n for n in v], len(v)
+        return sorted([n for n in v]), len(v)
 
 
 
