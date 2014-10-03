@@ -1,71 +1,109 @@
 from __future__ import print_function
 import os
 import sys
-import json
 import requests
 import redis
+import urllib2
+from time import sleep
+from json import loads, dumps
+from xml.dom.minidom import parse
+import xmltodict
+
 
 REDIS_URL = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
 r_server = redis.StrictRedis.from_url(REDIS_URL)
 
+# fetches from our mirror of the dsn/eyes feed
 url = 'http://murmuring-anchorage-8062.herokuapp.com/dsn.json'
-data = json.loads(requests.get(url).text)['dsn']
 
-# log when we updated the database
-this_dsn = data
-last_dsn = r_server.get('last_dsn')
-if this_dsn == data:
-    print('dns feed has not changed')
-    sys.exit()  # nothing to do
-if this_dsn != data:
-    r_server.set('last_dsn', last_dsn)
-    print("dsn has changed")
+def dsn_raw():
+    """ a json view of the dsn xml feed """
+    response = urllib2.urlopen('http://eyes.nasa.gov/dsn/data/dsn.xml')
+    dom=parse(response)
 
-dsn_data = {}
-for station in data:
-    for dish_attr in data[station]:
-        timeUTC, timeZoneOffset = (data[station]['timeUTC'], data[station]['timeZoneOffset'])
-        dish_list = data[station]['dishes']
+    dsn_data = {}
+    for node in dom.childNodes[0].childNodes:
 
-        for dish in dish_list:
-            dish_name, downSignal, upSignal = (dish['@name'], dish['downSignal'], dish['upSignal'])
-            last_contact, updated = (dish['@created'], dish['@updated'])
+        if not  hasattr(node, 'tagName'):  # useless nodes
+            continue
 
-            # if only a single downSignal it is a dict, if multiples it is a list, make them all lists:
-            if type(downSignal).__name__ == 'dict':
-                downSignal = [downSignal]
-            if type(upSignal).__name__ == 'dict':
-                upSignal = [upSignal]
+        # dsn feed is strange: dishes should appear inside station nodes but don't
+        # so converting entire xml doc to dict loses the station/probe relation
+        # so have to parse node by node to grab station THEN convert dish node to dict
+        if node.tagName == 'station':
+            xmltodict.parse(node.toxml())
+            station = node.getAttribute('friendlyName')
+            dsn_data.setdefault(station, {})
+            dsn_data[station]['friendlyName'] = node.getAttribute('friendlyName')
+            dsn_data[station]['timeUTC'] = node.getAttribute('timeUTC')
+            dsn_data[station]['timeZoneOffset'] = node.getAttribute('timeZoneOffset')
 
-            for d in downSignal:
-                if not d['@spacecraft'] or not d['@frequency']: continue  # sometimes there is no uplink/downlink
+        if node.tagName == 'dish':
+            dsn_data[station].setdefault('dishes', []).append(xmltodict.parse(node.toxml())['dish'])
 
-                spacecraft = d['@spacecraft']  # now can build a struct based on spacecraft
-                dsn_data.setdefault(spacecraft, {})
-                spacecraft_data = {k[1:]:v for k,v in d.items()}  # just removing the @ signs here
+    r_server.set('dsn_raw', dumps(dsn_data))
 
-                del(spacecraft_data['spacecraft'])  # redundant here
+    return dsn_data
 
-                dsn_data[spacecraft]['last_downSignal'] = spacecraft_data
-                dsn_data[spacecraft]['last_downSignal_station'] = station
-                dsn_data[spacecraft]['last_downSignal_dish'] = dish_name
-                dsn_data[spacecraft]['last_downSignal_date'] = last_contact
+def dsn_convert():
+    """ read our json mirror of dsn raw feed and remix+save
+        into our 'by probe' schema """
 
-            for d in upSignal:
-                if not d['@spacecraft'] or not d['@frequency']: continue  # sometimes there is no uplink/downlink
+    # fetch+ooad dsn from our json mirror
+    try:
+        req = requests.get(url)
+    except requests.exceptions.RequestException as e:    # This is the correct syntax
+        print(e)
+        sys.exit(1)
 
-                spacecraft = d['@spacecraft']  # now can build a struct based on spacecraft
-                dsn_data.setdefault(d['@spacecraft'], {})
-                spacecraft_data = {k[1:]:v for k,v in d.items()}  # just removing the @ signs here
+    if req.status_code == requests.codes.ok:
+        try:
+            dsn_raw = loads(req.text)['dsn']
+        except ValueError:
+            print("could not load dsn data from %s" % url)
+            sys.exit(1)
 
-                del(spacecraft_data['spacecraft'])  # redundant here
 
-                dsn_data[spacecraft]['last_upSignal'] = spacecraft_data
-                dsn_data[spacecraft]['last_upSignal_station'] = station
-                dsn_data[spacecraft]['last_upSignal_dish'] = dish_name
-                dsn_data[spacecraft]['last_upSignal_date'] = last_contact
+    dsn_by_probe = loads(r_server.get('dsn_by_probe'))
 
-            r_server.set(spacecraft, dsn_data[spacecraft])
-            print('dsn database updated')
+    for station in dsn_raw:
+        for dish_attr in dsn_raw[station]:
 
+            timeUTC, timeZoneOffset = (dsn_raw[station]['timeUTC'], dsn_raw[station]['timeZoneOffset'])
+            dish_list = dsn_raw[station]['dishes']
+
+            for dish in dish_list:
+                dish_name, downSignal, upSignal, target = (dish['@name'], dish['downSignal'], dish['upSignal'], dish['target'])
+                last_contact, updated = (dish['@created'], dish['@updated'])
+
+                # if only a single downSignal it is a dict, if multiples it is a list, make them all lists:
+                if type(downSignal).__name__ == 'dict':
+                    downSignal = [downSignal]
+                if type(upSignal).__name__ == 'dict':
+                    upSignal = [upSignal]
+                if type(target).__name__ == 'dict':
+                    target = [target]
+
+
+                for d in target:
+                    probe = d['@name']
+
+                    dsn_by_probe.setdefault(probe, {})
+
+                    probe_data = {k[1:]:v for k,v in d.items()}  # just removing the @ signs here
+
+                    dsn_by_probe[probe]['downlegRange'] = d['@downlegRange']
+                    dsn_by_probe[probe]['uplegRange'] = d['@uplegRange']
+                    dsn_by_probe[probe]['rtlt'] = d['@rtlt']
+                    dsn_by_probe[probe]['last_conact'] = last_contact
+                    dsn_by_probe[probe]['last_dish'] = dish_name
+                    dsn_by_probe[probe]['updated'] = updated
+
+                r_server.set('dsn_by_probe', dumps(dsn_by_probe))
+
+
+
+if __name__ == '__main__':
+    dsn_raw()  # update the json mirror
+    dsn_convert()  # update our 'by spacecraft' schema
 

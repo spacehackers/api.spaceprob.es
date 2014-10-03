@@ -1,17 +1,37 @@
 from __future__ import print_function
 import os
-import urllib2
 import redis
-import xmltodict
-from xml.dom.minidom import parse
 from flask import Flask, render_template, redirect
-from json import loads
+from json import loads, dumps
 from util import json, jsonp
+from scrapers.dsn import dsn_raw
 
 app = Flask(__name__)
 REDIS_URL = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
 r_server = redis.StrictRedis.from_url(REDIS_URL)
 
+@app.route('/')
+def hello():
+    return redirect("/dsn/probes.json", code=302)
+
+@app.route('/dsn/mirror.json')
+@jsonp
+@json
+def dsn_mirror():
+    """ a json view of the dsn xml feed """
+    dsn = dsn_raw()
+    return {'dsn': dsn }, 200
+
+@app.route('/dsn/probes.json')
+# @jsonp
+@json
+def dsn_by_probe():
+    """ a json view of the dsn xml feed """
+    dsn_by_probe = loads(r_server.get('dsn_by_probe'))
+    return {'dsn_by_probe': dsn_by_probe}, 200
+
+
+# the rest of this is like wolfram alpha data or something..
 
 def get_detail(probe):
     """ returns list of data we have for this probe
@@ -30,16 +50,18 @@ def guide():
     """ html api guide data viewer thingy
         at </probes/guide/>
     """
-    wolframalpha = loads(r_server.get('wolframalpha'))
-    kwargs = {'probe_details':wolframalpha}
-    return render_template('guide.html', **kwargs)
-
+    try:
+        wolframalpha = loads(r_server.get('wolframalpha'))
+        kwargs = {'probe_details':wolframalpha}
+        return render_template('guide.html', **kwargs)
+    except:
+        return redirect("dsn/probes.json", code=302)
 
 @app.route('/probes/<probe>/')
 @jsonp
 @json
 def detail(probe):
-    """ returns list of data we have for this probe
+    """ returns list of data we have for this probe from wolfram alpha
         url = /<probe_name>
         ie
         </Cassini>
@@ -70,40 +92,6 @@ def index():
     probe_names = [k for k in loads(r_server.get('wolframalpha'))]
     return {'spaceprobes': [p for p in probe_names]}, 200
 
-@app.route('/')
-def hello():
-    return redirect("/probes/guide/", code=302)
-
-@app.route('/dsn.json')
-@app.route('/dump/dsn.json')  # back compat
-@jsonp
-@json
-def dsn():
-    """ a json view of the dsn xml feed """
-    response = urllib2.urlopen('http://eyes.nasa.gov/dsn/data/dsn.xml')
-    dom=parse(response)
-
-    dsn_data = {}
-    for node in dom.childNodes[0].childNodes:
-
-        if not  hasattr(node, 'tagName'):  # useless nodes
-            continue
-
-        # dsn feed is strange: dishes should appear inside station nodes but don't
-        # so converting entire xml doc to dict loses the station/spacecraft relation
-        # so have to parse node by node to grab station THEN convert dish node to dict
-        if node.tagName == 'station':
-            xmltodict.parse(node.toxml())
-            station = node.getAttribute('friendlyName')
-            dsn_data.setdefault(station, {})
-            dsn_data[station]['friendlyName'] = node.getAttribute('friendlyName')
-            dsn_data[station]['timeUTC'] = node.getAttribute('timeUTC')
-            dsn_data[station]['timeZoneOffset'] = node.getAttribute('timeZoneOffset')
-
-        if node.tagName == 'dish':
-            dsn_data[station].setdefault('dishes', []).append(xmltodict.parse(node.toxml())['dish'])
-
-    return {'dsn': dsn_data}, 200
 
 
 if __name__ == '__main__':
