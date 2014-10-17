@@ -3,7 +3,7 @@ import os
 import redis
 from flask import Flask, render_template, redirect
 from json import loads, dumps
-from util import json, jsonp
+from util import json, jsonp, support_jsonp
 from scrapers.dsn import get_dsn_raw
 
 app = Flask(__name__)
@@ -15,7 +15,6 @@ def hello():
     return redirect("/dsn/probes.json", code=302)
 
 @app.route('/dsn/mirror.json')
-@jsonp
 @json
 def dsn_mirror():
     """ a json view of the dsn xml feed """
@@ -23,12 +22,15 @@ def dsn_mirror():
     return {'dsn': dsn }, 200
 
 @app.route('/dsn/probes.json')
+@app.route('/dsn/spaceprobes.json')
 # @jsonp
 @json
+@support_jsonp
 def dsn_by_probe():
-    """ a json view of the dsn xml feed """
+    """ dsn data by probe """
     dsn_by_probe = loads(r_server.get('dsn_by_probe'))
     return {'dsn_by_probe': dsn_by_probe}, 200
+
 
 
 # the rest of this is like wolfram alpha data or something..
@@ -58,7 +60,7 @@ def guide():
         return redirect("dsn/probes.json", code=302)
 
 @app.route('/probes/<probe>/')
-@jsonp
+@support_jsonp
 @json
 def detail(probe):
     """ returns list of data we have for this probe from wolfram alpha
@@ -70,7 +72,7 @@ def detail(probe):
 
 
 @app.route('/probes/<probe>/<field>/')
-@jsonp
+@support_jsonp
 @json
 def single_field(probe, field):
     """ returns data for single field
@@ -83,7 +85,7 @@ def single_field(probe, field):
 
 
 @app.route('/probes/')
-@jsonp
+@support_jsonp
 @json
 def index():
     """ returns list of all space probes in db
