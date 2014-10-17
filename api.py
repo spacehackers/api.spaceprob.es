@@ -1,7 +1,7 @@
 from __future__ import print_function
 import os
 import redis
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, jsonify
 from json import loads, dumps
 from util import json, jsonp, support_jsonp
 from scrapers.dsn import get_dsn_raw
@@ -23,13 +23,11 @@ def dsn_mirror():
 
 @app.route('/dsn/probes.json')
 @app.route('/dsn/spaceprobes.json')
-# @jsonp
-@json
 @support_jsonp
 def dsn_by_probe():
     """ dsn data by probe """
     dsn_by_probe = loads(r_server.get('dsn_by_probe'))
-    return {'dsn_by_probe': dsn_by_probe}, 200
+    return jsonify({'dsn_by_probe': dsn_by_probe})
 
 
 
