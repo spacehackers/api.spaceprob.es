@@ -85,7 +85,7 @@ def dsn_convert():
 
                     probe_data = {k[1:]:v for k,v in d.items()}  # just removing the @ signs here
 
-                    if d['@uplegRange'] > 0:
+                    if float(d['@uplegRange']) > 0:
                         # only update if there is a distance measurement
                         dsn_by_probe[probe]['downlegRange'] = d['@downlegRange']
                         dsn_by_probe[probe]['uplegRange'] = d['@uplegRange']
@@ -96,10 +96,15 @@ def dsn_convert():
 
                         msg.append(probe)
 
-                r_server.set('dsn_by_probe', dumps(dsn_by_probe))
+                    else:
+                        print('uplegRange < 0 for ' + probe + ' ' + d['@uplegRange'])
 
-
-    print("updated: " + ", ".join(sorted(list(set(msg)))))
+    if msg:
+        # do the update and print the log msg
+        r_server.set('dsn_by_probe', dumps(dsn_by_probe))
+        print("updated: " + ", ".join(sorted(list(set(msg)))))
+    else:
+        print("no updates")
 
 # this is more like a util for the console
 def get_current_probes():
