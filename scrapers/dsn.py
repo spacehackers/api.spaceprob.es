@@ -94,9 +94,10 @@ def dsn_convert():
                         dsn_by_probe[probe]['last_dish'] = dish_name
                         dsn_by_probe[probe]['updated'] = updated
 
+                        msg.append(probe)
+
                 r_server.set('dsn_by_probe', dumps(dsn_by_probe))
 
-                msg.append(probe)
 
     print("updated: " + ", ".join(sorted(list(set(msg)))))
 
