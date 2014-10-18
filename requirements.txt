@@ -11,4 +11,4 @@ xmltodict==0.8.7
 wolframalpha==1.0.2
 requests==2.2.1
 six==1.6.1
-
+pyephem==3.7.5.3

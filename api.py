@@ -1,6 +1,7 @@
 from __future__ import print_function
 import os
 import redis
+import ephem
 from flask import Flask, render_template, redirect, jsonify
 from json import loads, dumps
 from util import json, jsonp, support_jsonp
@@ -29,6 +30,20 @@ def dsn_by_probe():
     dsn_by_probe = loads(r_server.get('dsn_by_probe'))
     return jsonify({'dsn_by_probe': dsn_by_probe})
 
+
+@app.route('/planets.json')
+@support_jsonp
+def planet_distances():
+    """ dsn data by probe """
+    meters_per_au = 149597870700
+
+    planet_ephem = [ephem.Mercury(), ephem.Venus(), ephem.Mars(), ephem.Saturn(), ephem.Jupiter(), ephem.Uranus(), ephem.Neptune(), ephem.Pluto()]
+    planets = {}
+    for p in planet_ephem:
+        p.compute()
+        planets[p.name] = p.earth_distance *  meters_per_au / 10000  # km
+
+    return jsonify({'distance_from_earth_km': planets})
 
 
 # the rest of this is like wolfram alpha data or something..
