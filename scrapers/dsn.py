@@ -85,12 +85,14 @@ def dsn_convert():
 
                     probe_data = {k[1:]:v for k,v in d.items()}  # just removing the @ signs here
 
-                    dsn_by_probe[probe]['downlegRange'] = d['@downlegRange']
-                    dsn_by_probe[probe]['uplegRange'] = d['@uplegRange']
-                    dsn_by_probe[probe]['rtlt'] = d['@rtlt']
-                    dsn_by_probe[probe]['last_conact'] = last_contact
-                    dsn_by_probe[probe]['last_dish'] = dish_name
-                    dsn_by_probe[probe]['updated'] = updated
+                    if d['@uplegRange'] > 0:
+                        # only update if there is a distance measurement
+                        dsn_by_probe[probe]['downlegRange'] = d['@downlegRange']
+                        dsn_by_probe[probe]['uplegRange'] = d['@uplegRange']
+                        dsn_by_probe[probe]['rtlt'] = d['@rtlt']
+                        dsn_by_probe[probe]['last_conact'] = last_contact
+                        dsn_by_probe[probe]['last_dish'] = dish_name
+                        dsn_by_probe[probe]['updated'] = updated
 
                 r_server.set('dsn_by_probe', dumps(dsn_by_probe))
 
