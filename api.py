@@ -37,7 +37,6 @@ def dsn_by_probe():
 def all_probe_distances():
     # first get list of all probes from the webiste
     url = 'http://probes.natronics.org/probes.json'
-    url = 'http://0.0.0.0:4000/probes.json'
     all_probes_website = loads(requests.get(url).text)
 
     # get probes according to DSN
