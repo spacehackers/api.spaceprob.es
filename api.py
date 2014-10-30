@@ -24,6 +24,7 @@ def dsn_mirror():
     return {'dsn': dsn }, 200
 
 @app.route('/dsn/probes.json')
+@app.route('/dsn/spaceprobes.json')
 @support_jsonp
 def dsn_by_probe():
     """ dsn data by probe """
