@@ -23,12 +23,19 @@ def dsn_mirror():
     return {'dsn': dsn }, 200
 
 @app.route('/dsn/probes.json')
-@app.route('/dsn/spaceprobes.json')
 @support_jsonp
 def dsn_by_probe():
     """ dsn data by probe """
     dsn_by_probe = loads(r_server.get('dsn_by_probe'))
     return jsonify({'dsn_by_probe': dsn_by_probe})
+
+# primary for the spaceprobes website
+@app.route('/dsn/spaceprobes.json')
+@support_jsonp
+def all_probe_distances():
+    """ dsn data by probe """
+    spaceprobes = loads(r_server.get('dsn_by_probe'))
+    return jsonify({'spaceprobes': spaceprobes})
 
 
 @app.route('/planets.json')
