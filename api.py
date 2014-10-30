@@ -2,6 +2,7 @@ from __future__ import print_function
 import os
 import redis
 import ephem
+import requests
 from flask import Flask, render_template, redirect, jsonify
 from json import loads, dumps
 from util import json, jsonp, support_jsonp
@@ -29,13 +30,47 @@ def dsn_by_probe():
     dsn_by_probe = loads(r_server.get('dsn_by_probe'))
     return jsonify({'dsn_by_probe': dsn_by_probe})
 
-# primary for the spaceprobes website
-@app.route('/dsn/spaceprobes.json')
+# for feeding the spaceprobes website
+@app.route('/distances.json')
 @support_jsonp
 def all_probe_distances():
-    """ dsn data by probe """
-    spaceprobes = loads(r_server.get('dsn_by_probe'))
-    return jsonify({'spaceprobes': spaceprobes})
+    # first get list of all probes from the webiste
+    url = 'http://probes.natronics.org/probes.json'
+    url = 'http://0.0.0.0:4000/probes.json'
+    all_probes_website = loads(requests.get(url).text)
+
+    # get probes according to DSN
+    dsn = loads(r_server.get('dsn_by_probe'))
+
+    # see what's missing
+    distances = {}
+    for probe in all_probes_website:  # loop thru all probes that appear on website
+        dsn_name = probe['dsn_name']
+        slug = probe['slug']
+
+        if dsn_name and dsn_name in dsn:
+            distances[slug] = dsn[dsn_name]['uplegRange']
+
+        elif 'distance' in probe and probe['distance']:
+            # this probe's distance is hard coded at website, add that
+            distances[slug] = probe['distance']
+
+        elif 'orbit_planet' in probe and probe['orbit_planet']:
+            # this probes distance is same as a planet, so use pyephem
+
+            # find distance to planet
+            if probe['orbit_planet'] == 'Venus':
+                m = ephem.Venus()
+            if probe['orbit_planet'] == 'Mars':
+                m = ephem.Mars()
+
+            if m:
+                m.compute()
+                earth_distance = m.earth_distance * 149597871  # convert from AU to kilometers
+                distances[slug] = earth_distance
+
+
+    return jsonify({'spaceprobe_distances': distances})
 
 
 @app.route('/planets.json')
