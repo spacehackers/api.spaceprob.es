@@ -27,7 +27,7 @@ def dsn_mirror():
 @app.route('/dsn/spaceprobes.json')
 @support_jsonp
 def dsn_by_probe():
-    """ dsn data by probe """
+    """ dsn data aggregated by space probe """
     dsn_by_probe = loads(r_server.get('dsn_by_probe'))
     return jsonify({'dsn_by_probe': dsn_by_probe})
 
@@ -35,16 +35,21 @@ def dsn_by_probe():
 @app.route('/distances.json')
 @support_jsonp
 def all_probe_distances():
+    """ special endpoint to feed the spaceprobes website """
+
     # first get list of all probes from the webiste
     url = 'http://probes.natronics.org/probes.json'
     all_probes_website = loads(requests.get(url).text)
 
-    # get probes according to DSN
+    # get probes according to our DSN mirror
     dsn = loads(r_server.get('dsn_by_probe'))
 
-    # see what's missing
+    # now loop through probes on website and try to find their distances
+    # some will have distances in dsn feed, others will have resource from website endpoint
+    # and others we will use pyephem for their host planet
     distances = {}
-    for probe in all_probes_website:  # loop thru all probes that appear on website
+    for probe in all_probes_website:
+
         dsn_name = probe['dsn_name']
         slug = probe['slug']
 
@@ -56,9 +61,8 @@ def all_probe_distances():
             distances[slug] = probe['distance']
 
         elif 'orbit_planet' in probe and probe['orbit_planet']:
-            # this probes distance is same as a planet, so use pyephem
+            # this probe's distance is same as a planet, so use pyephem
 
-            # find distance to planet
             if probe['orbit_planet'] == 'Venus':
                 m = ephem.Venus()
             if probe['orbit_planet'] == 'Mars':
@@ -69,14 +73,13 @@ def all_probe_distances():
                 earth_distance = m.earth_distance * 149597871  # convert from AU to kilometers
                 distances[slug] = earth_distance
 
-
     return jsonify({'spaceprobe_distances': distances})
 
 
 @app.route('/planets.json')
 @support_jsonp
 def planet_distances():
-    """ dsn data by probe """
+    """ return current distances from earth for 9 planets """
     meters_per_au = 149597870700
 
     planet_ephem = [ephem.Mercury(), ephem.Venus(), ephem.Mars(), ephem.Saturn(), ephem.Jupiter(), ephem.Uranus(), ephem.Neptune(), ephem.Pluto()]
@@ -88,8 +91,8 @@ def planet_distances():
     return jsonify({'distance_from_earth_km': planets})
 
 
-# the rest of this is like wolfram alpha data or something..
 
+# the rest of this is old and like wolfram alpha hacking or something..
 def get_detail(probe):
     """ returns list of data we have for this probe
         url = /<probe_name>
