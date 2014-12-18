@@ -10,9 +10,9 @@ class ApiTests(TestCase):
         self.w = TestApp(self.app)
 
     def test_cassini(self):
-        r = self.w.get('/Cassini')
+        r = self.w.get('/probes/cassini')
         self.assertFalse(r.flashes)
 
     def test_cassini_mass(self):
-        r = self.w.get('/Cassini/mass')
+        r = self.w.get('/probes/cassini/mass')
         self.assertFalse(r.flashes)
