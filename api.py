@@ -38,7 +38,7 @@ def all_probe_distances():
     """ special endpoint to feed the spaceprobes website """
 
     # first get list of all probes from the webiste
-    url = 'http://probes.natronics.org/probes.json'
+    url = 'http://spaceprobes.beforeamillionuniverses.com/probes.json'
     all_probes_website = loads(requests.get(url).text)
 
     # get probes according to our DSN mirror
@@ -67,6 +67,8 @@ def all_probe_distances():
                 m = ephem.Venus()
             if probe['orbit_planet'] == 'Mars':
                 m = ephem.Mars()
+            if probe['orbit_planet'] == 'Moon':
+                m = ephem.Moon()
 
             if m:
                 m.compute()
