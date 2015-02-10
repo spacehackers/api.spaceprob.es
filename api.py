@@ -73,7 +73,7 @@ def all_probe_distances():
             if m:
                 m.compute()
                 earth_distance = m.earth_distance * 149597871  # convert from AU to kilometers
-                distances[slug] = earth_distance
+                distances[slug] = str(earth_distance)
 
     return jsonify({'spaceprobe_distances': distances})
 
