@@ -38,7 +38,7 @@ def all_probe_distances():
     """ special endpoint to feed the spaceprobes website """
 
     # first get list of all probes from the webiste
-    url = 'http://spaceprobes.beforeamillionuniverses.com/probes.json'
+    url = 'http://spaceprob.es/probes.json'
     all_probes_website = loads(requests.get(url).text)
 
     # get probes according to our DSN mirror
