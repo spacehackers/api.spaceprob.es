@@ -93,6 +93,7 @@ def dsn_convert():
                         dsn_by_probe[probe]['last_conact'] = last_contact
                         dsn_by_probe[probe]['last_dish'] = dish_name
                         dsn_by_probe[probe]['updated'] = updated
+                        dsn_by_probe[probe]['station'] = station
 
                         msg.append(probe)
 
