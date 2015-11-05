@@ -70,7 +70,22 @@ def dsn_convert():
 
             for dish in dish_list:
 
-                dish_name, downSignal, upSignal, target = (dish['@name'], dish['downSignal'], dish['upSignal'], dish['target'])
+                try: 
+                    downSignal = dish['downSignal']
+                except KeyError:
+                    pass
+
+                try:
+                    upSignal = dish['upSignal']
+                except KeyError:
+                    pass
+
+                if not upSignal and not downSignal:
+                    # if no down or upsignal move along
+                    continue
+
+                dish_name = dish['@name']
+                target = dish['target']
                 last_contact, updated = (dish['@created'], dish['@updated'])
                 azimuthAngle, elevationAngle = (dish['@azimuthAngle'], dish['@elevationAngle'])
 
