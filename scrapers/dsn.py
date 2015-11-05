@@ -68,6 +68,7 @@ def dsn_convert():
 
                 dish_name, downSignal, upSignal, target = (dish['@name'], dish['downSignal'], dish['upSignal'], dish['target'])
                 last_contact, updated = (dish['@created'], dish['@updated'])
+                azimuthAngle, elevationAngle = (dish['@azimuthAngle'], dish['@elevationAngle'])
 
                 # if only a single downSignal it is a dict, if multiples it is a list, make them all lists:
                 if type(downSignal).__name__ == 'dict':
@@ -94,6 +95,8 @@ def dsn_convert():
                         dsn_by_probe[probe]['last_dish'] = dish_name
                         dsn_by_probe[probe]['updated'] = updated
                         dsn_by_probe[probe]['station'] = station
+                        dsn_by_probe[probe]['azimuthAngle'] = azimuthAngle
+                        dsn_by_probe[probe]['elevationAngle'] = elevationAngle
 
                         msg.append(probe)
 
