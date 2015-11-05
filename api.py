@@ -35,8 +35,18 @@ def dsn_by_probe():
 @app.route('/distances.json')
 @support_jsonp
 def all_probe_distances():
-    """ special endpoint to feed the spaceprobes website """
+    """ 
+        endpoint to feed the spaceprobes website 
 
+        this endpoint firsts asks the website what spaceprobes it has
+        and returns something for each. maybe this is a feature. 
+
+        to test locally, edit the url below
+        and in the spaceprobes site main.js edit the distances_feed_url
+        you might also need to grab copy of this app's redis db from 
+        heroku production to build locally 
+
+    """
     # first get list of all probes from the webiste
     url = 'http://spaceprob.es/probes.json'
     all_probes_website = loads(requests.get(url).text)
