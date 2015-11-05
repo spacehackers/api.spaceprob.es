@@ -62,7 +62,11 @@ def dsn_convert():
         for dish_attr in dsn_raw[station]:
 
             timeUTC, timeZoneOffset = (dsn_raw[station]['timeUTC'], dsn_raw[station]['timeZoneOffset'])
-            dish_list = dsn_raw[station]['dishes']
+
+            try:
+                dish_list = dsn_raw[station]['dishes']
+            except KeyError:
+                continue
 
             for dish in dish_list:
 
