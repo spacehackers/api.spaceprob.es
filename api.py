@@ -54,7 +54,7 @@ def all_probe_distances():
 
     """
     # first get list of all probes from the webiste
-    url = 'https://spaceprob.es/probes.json'
+    url = 'http://spaceprob.es/probes.json'
     all_probes_website = loads(requests.get(url).text)
 
     # get probes according to our DSN mirror
