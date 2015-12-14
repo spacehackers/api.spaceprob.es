@@ -1,6 +1,8 @@
 from __future__ import print_function
 import os
+import sys
 import redis
+import logging
 import ephem
 import requests
 from flask import Flask, render_template, redirect, jsonify
@@ -11,6 +13,10 @@ from scrapers.dsn import get_dsn_raw
 app = Flask(__name__)
 REDIS_URL = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
 r_server = redis.StrictRedis.from_url(REDIS_URL)
+
+app.logger.addHandler(logging.StreamHandler(sys.stdout))
+app.logger.setLevel(logging.ERROR)
+
 
 @app.route('/')
 def hello():
