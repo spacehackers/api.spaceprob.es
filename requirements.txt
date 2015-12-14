@@ -1,4 +1,4 @@
-Flask==0.10.1
+Flask
 Pygments==1.6
 beautifulsoup4==4.3.2
 blinker==1.3
