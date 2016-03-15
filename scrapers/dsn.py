@@ -17,7 +17,8 @@ r_server = redis.StrictRedis.from_url(REDIS_URL)
 url = 'http://murmuring-anchorage-8062.herokuapp.com/dsn/mirror.json'
 
 def get_dsn_raw():
-    """ gets dsn xml feed, converts to json, saves json to redis, returns json """
+    """ returns a current snapshot of the DSN xml feed converted to json, and updates a copy in redis.
+        gets dsn xml feed, converts to json, saves json to redis, returns json """
 
     # pass the url a param 'r' = timestamp to avoid hitting their cloudfront cache
     timestamp = str(int(mktime(datetime.now().timetuple())))
