@@ -8,7 +8,7 @@ itsdangerous==0.23
 newrelic==2.34.0.29
 pyephem==3.7.5.3
 redis==2.9.1
-requests==2.2.1
+requests
 six==1.6.1
 waitress==0.8.8
 wolframalpha==1.0.2
