@@ -44,15 +44,20 @@ def jsonp(func):
 
 # from aisipos on github
 #   https://gist.github.com/aisipos/1094140
-def support_jsonp(f):
-    """Wraps JSONified output for JSONP"""
-    @wraps(f)
+#   updated: https://gist.github.com/aisipos/1094140#gistcomment-1649577
+def support_jsonp(func):
+    """Wraps JSONified output for JSONP requests."""
+    @wraps(func)
     def decorated_function(*args, **kwargs):
         callback = request.args.get('callback', False)
         if callback:
-            content = str(callback) + '(' + str(f(*args,**kwargs).data) + ')'
-            return current_app.response_class(content, mimetype='application/javascript')
+            resp = func(*args, **kwargs)
+            resp.set_data('{}({})'.format(
+                str(callback),
+                resp.get_data(as_text=True)
+            ))
+            resp.mimetype = 'application/javascript'
+            return resp
         else:
-            return f(*args, **kwargs)
+            return func(*args, **kwargs)
     return decorated_function
-
