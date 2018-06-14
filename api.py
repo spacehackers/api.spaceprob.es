@@ -41,16 +41,16 @@ def dsn_by_probe():
 @app.route('/distances.json')
 @support_jsonp
 def all_probe_distances():
-    """ 
-        endpoint to feed the spaceprobes website 
+    """
+        endpoint to feed the spaceprobes website
 
         this endpoint firsts asks the website what spaceprobes it has
-        and returns something for each. maybe this is a feature. 
+        and returns something for each. maybe this is a feature?
 
         to test locally, edit the url below
         and in the spaceprobes site main.js edit the distances_feed_url
-        you might also need to grab copy of this app's redis db from 
-        heroku production to build locally 
+        you might also need to grab copy of this app's redis db from
+        heroku production to build locally
 
     """
     # first get list of all probes from the webiste
@@ -70,7 +70,16 @@ def all_probe_distances():
         slug = probe['slug']
 
         if dsn_name and dsn_name in dsn:
-            distances[slug] = dsn[dsn_name]['uplegRange']
+            try:
+                if dsn[dsn_name]['uplegRange'] > 0:
+                    distances[slug] = dsn[dsn_name]['uplegRange']
+            except KeyError:
+                try:
+                    if dsn[dsn_name]['downlegRange'] > 0:
+                        distances[slug] = dsn[dsn_name]['downlegRange']
+                except KeyError:
+                    # no distance data
+                    continue
 
         elif 'orbit_planet' in probe and probe['orbit_planet']:
             # this probe's distance is same as a planet, so use pyephem
@@ -89,8 +98,8 @@ def all_probe_distances():
 
         elif 'distance' in probe and probe['distance']:
             # this probe's distance is hard coded at website, add that
-            try: 
-                # make sure this is actually numeric 
+            try:
+                # make sure this is actually numeric
                 float(probe['distance'])
                 distances[slug] = str(probe['distance'])
             except ValueError:
