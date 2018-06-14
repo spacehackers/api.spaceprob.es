@@ -2,7 +2,7 @@ import os
 import sys
 import requests
 import redis
-import urllib2
+from urllib.request import urlopen
 from datetime import datetime
 from time import sleep, mktime
 from json import loads, dumps
@@ -21,7 +21,7 @@ def get_dsn_raw():
 
     # pass the url a param 'r' = timestamp to avoid hitting their cloudfront cache
     timestamp = str(int(mktime(datetime.now().timetuple())))
-    response = urllib2.urlopen('https://eyes.nasa.gov/dsn/data/dsn.xml?r=' + timestamp)
+    response = urlopen('https://eyes.nasa.gov/dsn/data/dsn.xml?r=' + timestamp)
     dom=parse(response)
 
     dsn_data = {}
