@@ -70,14 +70,12 @@ def all_probe_distances():
 
         if dsn_name and dsn_name in dsn:
             try:
-                if dsn[dsn_name]['uplegRange'] > 0:
-                    distances[slug] = dsn[dsn_name]['uplegRange']
+                distances[slug] = dsn[dsn_name]['uplegRange']
             except KeyError:
                 try:
-                    if dsn[dsn_name]['downlegRange'] > 0:
-                        distances[slug] = dsn[dsn_name]['downlegRange']
+                    distances[slug] = dsn[dsn_name]['downlegRange']
                 except KeyError:
-                    # no distance data
+                    # there is no distance data
                     continue
 
         elif 'orbit_planet' in probe and probe['orbit_planet']:
