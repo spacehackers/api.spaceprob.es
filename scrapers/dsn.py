@@ -14,7 +14,7 @@ REDIS_URL = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
 r_server = redis.StrictRedis.from_url(REDIS_URL)
 
 # fetches our json translation mirror of the dsn/eyes feed
-url = 'http://murmuring-anchorage-8062.herokuapp.com/dsn/mirror.json'
+url = 'https://murmuring-anchorage-8062.herokuapp.com/dsn/mirror.json'
 
 def get_dsn_raw():
     """ returns a current snapshot of the DSN xml feed converted to json, and updates a copy in redis.
@@ -22,7 +22,7 @@ def get_dsn_raw():
 
     # pass the url a param 'r' = timestamp to avoid hitting their cloudfront cache
     timestamp = str(int(mktime(datetime.now().timetuple())))
-    response = urllib2.urlopen('http://eyes.nasa.gov/dsn/data/dsn.xml?r=' + timestamp)
+    response = urllib2.urlopen('https://eyes.nasa.gov/dsn/data/dsn.xml?r=' + timestamp)
     dom=parse(response)
 
     dsn_data = {}
@@ -71,7 +71,7 @@ def dsn_convert():
 
             for dish in dish_list:
 
-                try: 
+                try:
                     downSignal = dish['downSignal']
                 except KeyError:
                     pass
@@ -133,7 +133,7 @@ def dsn_convert():
 # this is more like a util for the console
 def get_current_probes():
     """ list of the current probe names and its length """
-    url = 'http://murmuring-anchorage-8062.herokuapp.com/dsn/probes.json'
+    url = 'https://murmuring-anchorage-8062.herokuapp.com/dsn/probes.json'
     for p,v in loads(requests.get(url).text).items():
         return sorted([n for n in v]), len(v)
 
@@ -142,4 +142,3 @@ def get_current_probes():
 if __name__ == '__main__':
     get_dsn_raw()  # update the json mirror
     dsn_convert()  # update our 'by spacecraft' schema
-
