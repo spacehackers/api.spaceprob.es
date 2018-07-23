@@ -87,10 +87,16 @@ def all_probe_distances():
                 m = ephem.Mars()
             if probe['orbit_planet'] == 'Moon':
                 m = ephem.Moon()
+            if probe['orbit_planet'] == 'Earth-Moon-L2':
+                m = ephem.Moon()
 
             if m:
                 m.compute()
                 earth_distance = m.earth_distance * 149597871  # convert from AU to kilometers
+
+                if probe['orbit_planet'] == 'Earth-Moon-L2':
+                    earth_distance = earth_distance + 72000  # approximation for E-M L2
+
                 distances[slug] = str(earth_distance)
 
         elif 'distance' in probe and probe['distance']:
