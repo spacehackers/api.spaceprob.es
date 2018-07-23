@@ -96,6 +96,8 @@ def all_probe_distances():
 
                 if probe['orbit_planet'] == 'Earth-Moon-L2':
                     earth_distance = earth_distance + 72000  # approximation for E-M L2
+                                        # Queqiao orbits around Earth-Moon L2, which is distance of the
+                                        # Moon plus 65,000-80,000km
 
                 distances[slug] = str(earth_distance)
 
