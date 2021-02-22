@@ -1,5 +1,7 @@
 # spaceprobe.es API
 
+dsn scrapers and a flask app in. `util.py`
+
 [![Build Status](https://travis-ci.org/spacehackers/api.spaceprob.es.svg)](https://travis-ci.org/spacehackers/api.spaceprob.es)
 
 
