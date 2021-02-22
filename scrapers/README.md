@@ -1,4 +1,7 @@
-### wolphramalpha.py
+scraper runs on heroku scheduler
+
+----
+(is this still used?) --> wolphramalpha.py
 
 initializes the database with data from wolphram alpha for each spacecraft in list_active_probes.txt. This will replace any older data for each key!
 
