@@ -1,5 +1,5 @@
 Flask
-Pygments==1.6
+Pygments==2.7.4
 beautifulsoup4==4.3.2
 blinker==1.3
 gunicorn==18.0
